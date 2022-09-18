@@ -42,6 +42,17 @@ resource "aws_subnet" "private_subnet_1c" {
   }
 }
 
+resource "aws_subnet" "private_subnet_1a" {
+  vpc_id                  = aws_vpc.vpc.id
+  availability_zone       = "ap-northeast-1a"
+  cidr_block              = cidrsubnet(var.vpc_cidr, 8, 31)
+  map_public_ip_on_launch = false
+
+  tags = {
+    "Name" = "${var.prefix}-private-subnet-1a"
+  }
+}
+
 # Public Route Table
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.vpc.id
@@ -76,8 +87,9 @@ resource "aws_route_table_association" "private_rt_1c" {
   route_table_id = aws_route_table.private_rt.id
 }
 
-provider "aws" {
-  region = "ap-northeast-1"
+resource "aws_route_table_association" "private_rt_1a" {
+  subnet_id      = aws_subnet.private_subnet_1a.id
+  route_table_id = aws_route_table.private_rt.id
 }
 
 
