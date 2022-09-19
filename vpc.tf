@@ -92,6 +92,42 @@ resource "aws_route_table_association" "private_rt_1a" {
   route_table_id = aws_route_table.private_rt.id
 }
 
+# security group
+resource "aws_security_group" "app" {
+  name   = "${var.prefix}-dev-app-sg"
+  vpc_id = aws_vpc.vpc.id
+  tags = {
+    Name = "${var.prefix}-dev-app-sg"
+  }
+}
+
+resource "aws_security_group" "db" {
+  name   = "${var.prefix}-dev-db-sg"
+  vpc_id = aws_vpc.vpc.id
+
+  tags = {
+    Name = "${var.prefix}-dev-db-sg"
+  }
+}
+
+resource "aws_security_group_rule" "db-in" {
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.app.id
+  security_group_id        = aws_security_group.db.id
+}
+
+resource "aws_security_group_rule" "db-out" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 65535
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.db.id
+}
+
 
 
 
